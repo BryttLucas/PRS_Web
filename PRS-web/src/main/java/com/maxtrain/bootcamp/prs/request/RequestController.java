@@ -109,7 +109,7 @@ public class RequestController {
 		}
 	}
 
-	@PutMapping("/request/submit-review")
+	@PutMapping("/submit-review")
 	public JsonResponse getRequestWithStatusOfReview(@PathVariable Integer userId) {
 		try {
 			if (userId == null)

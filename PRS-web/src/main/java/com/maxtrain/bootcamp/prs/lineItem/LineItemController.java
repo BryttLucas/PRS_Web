@@ -110,8 +110,10 @@ public class LineItemController {
 		try {
 			if (id != line.getId()) {
 				return JsonResponse.getInstance("Parameter id doesn't match.");
-			}
+			}	
+			recalcLines(line.getRequest().getId());
 			return save(line);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonResponse.getInstance(e);
