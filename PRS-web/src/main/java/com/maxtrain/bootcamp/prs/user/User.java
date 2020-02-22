@@ -90,7 +90,7 @@ public class User {
 		return phoneNumber;
 	}
 
-	public void setPhone(String phoneNumber) {
+	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}	
 	public String getEmail() {

@@ -23,7 +23,7 @@ public class VendorController {
 	@Autowired
 	private VendorRepository vendorRepo;
 
-	@GetMapping("/")
+	@GetMapping()
 	public JsonResponse getAll() {
 		return JsonResponse.getInstance(vendorRepo.findAll());
 	}
@@ -63,11 +63,9 @@ public class VendorController {
 		}
 	}
 
-	@PutMapping("/{id}")
-	public JsonResponse update(@RequestBody Vendor vendor, @PathVariable Integer id) {
+	@PutMapping("/")
+	public JsonResponse update(@RequestBody Vendor vendor) {
 		try {
-			if (id == null)
-				return JsonResponse.getInstance("Paameter id connot be null");
 			return save(vendor);
 		} catch (Exception e) {
 			e.printStackTrace();

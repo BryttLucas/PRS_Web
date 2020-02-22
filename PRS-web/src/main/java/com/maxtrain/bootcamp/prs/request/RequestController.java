@@ -109,7 +109,8 @@ public class RequestController {
 		}
 	}
 
-	@PutMapping("/submit-review")
+	//@PutMapping("/list-review/{id}")
+	@PutMapping("/request/submit-review")
 	public JsonResponse getRequestWithStatusOfReview(@PathVariable Integer userId) {
 		try {
 			if (userId == null)
@@ -121,7 +122,9 @@ public class RequestController {
 			return JsonResponse.getInstance(e);
 		}
 	}
-	@GetMapping("requests/list-rewiew/{id}")
+	//No need for a mapping for this method  (SNB 2/22)
+	//@GetMapping("requests/list-rewiew/{id}")
+	// Method will change the request status and save it
 	private JsonResponse setRequestStatus(Request request, String status) {
 		try {
 			request.setStatus(status);
@@ -133,11 +136,11 @@ public class RequestController {
 	}
 
 	@PutMapping("/approve/{id}")
-	public JsonResponse approve(@RequestBody Request request, @PathVariable Integer id) {
+	public JsonResponse approve(@RequestBody Request request) {
 		try {
-			if (id != request.getId()) {
-				return JsonResponse.getInstance("Parameter id doesn't match request.");
-			}
+//			if (id != request.getId()) {
+//				return JsonResponse.getInstance("Parameter id doesn't match request.");
+//			}
 			return setRequestStatus(request, REQUEST_STATUS_APPROVE);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -145,12 +148,12 @@ public class RequestController {
 		}
 	}
 
-	@PutMapping("/reject/{id}")
-	public JsonResponse reject(@RequestBody Request request, @PathVariable Integer id) {
+	@PutMapping("/reject")
+	public JsonResponse reject(@RequestBody Request request) {
 		try {
-			if (id != request.getId()) {
-				return JsonResponse.getInstance("Parameter id doesn't match request.");
-			}
+//			if (id != request.getId()) {
+//				return JsonResponse.getInstance("Parameter id doesn't match request.");
+//			}
 			return setRequestStatus(request, REQUEST_STATUS_REJECTED);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -159,11 +162,12 @@ public class RequestController {
 
 	}
 
-	@PutMapping("/review/{id}")
-	public JsonResponse review(@RequestBody Request request, @PathVariable Integer id) {
+	// Requirement #6 - submit request for review:  change status to approved (if <= 50) or review, set submitted date to current date
+	@PutMapping("/submit-review")
+	public JsonResponse submitForReview(@RequestBody Request request) {
 		try {
-			if (id != request.getId())
-				return JsonResponse.getInstance("Parameter id does not match.");
+//			if (id != request.getId())
+//				return JsonResponse.getInstance("Parameter id does not match.");
 			request.setSubmittedDate(new Date(System.currentTimeMillis()));
 			if (request.getTotal() <= 50) {
 				return setRequestStatus(request, REQUEST_STATUS_APPROVE);

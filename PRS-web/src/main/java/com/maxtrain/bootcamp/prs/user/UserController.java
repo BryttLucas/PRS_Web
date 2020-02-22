@@ -25,11 +25,16 @@ public class UserController {
 
 	@PostMapping("/login")
 	public JsonResponse authenticate(@RequestBody User user) {
+		System.out.println("login called for user: "+user);
 		String username = user.getUsername();
 		String password = user.getPassword();
 		try {
 			User u = userRepo.findByUsernameAndPassword(username, password);
 			if (u == null) {
+				System.out.println("No user found");
+			}
+			else {
+				System.out.println("user found: "+u);
 			}
 			return JsonResponse.getInstance(u);
 		} catch (Exception e) {
@@ -49,11 +54,11 @@ public class UserController {
 		try {
 			if (id == null)
 				return JsonResponse.getInstance("Parameter id cannot be null.");
-			Optional<User> u = userRepo.findById(id);
-			if (!u.isPresent()) {
+			Optional<User> user = userRepo.findById(id);
+			if (!user.isPresent()) {
 				return JsonResponse.getInstance("User not found.");
 			}
-			return JsonResponse.getInstance(u.get());
+			return JsonResponse.getInstance(user.get());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonResponse.getInstance(e.getMessage());
@@ -80,11 +85,9 @@ public class UserController {
 		}
 	}
 
-	@PutMapping("/{id}")
-	public JsonResponse update(@RequestBody User user, @PathVariable Integer id) {
-		try {
-			if (id == null)
-				return JsonResponse.getInstance("Parameter id cannot be null.");
+	@PutMapping("/")
+	public JsonResponse update(@RequestBody User user) {
+		try {		
 			return save(user);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -40,7 +40,6 @@ public class ProductController {
 			}
 			return JsonResponse.getInstance(product.get());
 		} catch (Exception e) {
-			e.printStackTrace();
 			return JsonResponse.getInstance(e);
 		}
 	}
@@ -58,7 +57,7 @@ public class ProductController {
 	}
 
 	@PostMapping()
-	public JsonResponse Insert(@RequestBody Product product) {
+	public JsonResponse insert(@RequestBody Product product) {
 		try {
 			return save(product);
 		} catch (Exception e) {
@@ -67,11 +66,9 @@ public class ProductController {
 		}
 	}
 
-	@PutMapping("/{id}")
-	public JsonResponse update(@RequestBody Product product, @PathVariable Integer id) {
+	@PutMapping("/")
+	public JsonResponse update(@RequestBody Product product) {
 		try {
-			if (id != product.getId())
-				return JsonResponse.getInstance("Parameter id cannot be null.");
 			return save(product);
 		} catch (Exception e) {
 			e.printStackTrace();
