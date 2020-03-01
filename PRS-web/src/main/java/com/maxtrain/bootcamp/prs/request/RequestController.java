@@ -32,8 +32,7 @@ public class RequestController {
 	@GetMapping()
 	public JsonResponse getAll() {
 		try {
-			Iterable<Request> request = requestRepo.findAll();
-			return JsonResponse.getInstance(request);
+			return JsonResponse.getInstance(requestRepo.findAll());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonResponse.getInstance(e);
@@ -42,6 +41,8 @@ public class RequestController {
 
 	@GetMapping("/{id}")
 	public JsonResponse get(@PathVariable Integer id) {
+		if (id == null)
+			return JsonResponse.getInstance("Path ID cann't be null.");
 		try {
 			Optional<Request> request = requestRepo.findById(id);
 			if (!request.isPresent()) {
@@ -67,8 +68,8 @@ public class RequestController {
 		}
 	}
 
-	@PostMapping()
-	public JsonResponse insert(@RequestBody Request request) {
+	@PostMapping("/")
+	public JsonResponse add(@RequestBody Request request) {
 		try {
 			request.setStatus(REQUEST_STATUS_NEW);
 			request.setTotal(0);
@@ -80,12 +81,11 @@ public class RequestController {
 		}
 	}
 
-	@PutMapping("/{id}")
-	public JsonResponse update(@RequestBody Request request, @PathVariable Integer id) {
+	@PutMapping("/")
+	public JsonResponse update(@RequestBody Request request) {
 		try {
-			if (id != request.getId()) {
-				return JsonResponse.getInstance("Parameter id doesn't match request.");
-			}
+			Optional<Request> r = requestRepo.findById(request.getId());
+			if(!r.isPresent()) return JsonResponse.getInstance("No Request matches ID entered.");
 			return save(request);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -109,21 +109,8 @@ public class RequestController {
 		}
 	}
 
-	//@PutMapping("/list-review/{id}")
-	@PutMapping("/request/submit-review")
-	public JsonResponse getRequestWithStatusOfReview(@PathVariable Integer userId) {
-		try {
-			if (userId == null)
-				return JsonResponse.getInstance("UserId parameter cannot be null.");
-			Iterable<Request> requests = requestRepo.getRequestByStatusAndUserIdNot(REQUEST_STATUS_REVIEW, userId);
-			return JsonResponse.getInstance(requests);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return JsonResponse.getInstance(e);
-		}
-	}
-	//No need for a mapping for this method  (SNB 2/22)
-	//@GetMapping("requests/list-rewiew/{id}")
+	// No need for a mapping for this method (SNB 2/22)
+	// @GetMapping("requests/list-review/{id}")
 	// Method will change the request status and save it
 	private JsonResponse setRequestStatus(Request request, String status) {
 		try {
@@ -135,25 +122,44 @@ public class RequestController {
 		}
 	}
 
-	@PutMapping("/approve/{id}")
-	public JsonResponse approve(@RequestBody Request request) {
+	// @PutMapping("/list-review/{id}")
+	@PutMapping("/submit-review")
+	public JsonResponse getRequestWithStatusOfReview(@RequestBody Request request) {
 		try {
-//			if (id != request.getId()) {
-//				return JsonResponse.getInstance("Parameter id doesn't match request.");
-//			}
-			return setRequestStatus(request, REQUEST_STATUS_APPROVE);
+			Optional<Request> requests = requestRepo.findById(request.getId());
+			if (!requests.isPresent())
+				return JsonResponse.getInstance("No matching request found.");
+			request.setSubmittedDate(new Date(System.currentTimeMillis()));
+			if (request.getTotal() <= 50) {
+				return setRequestStatus(request, REQUEST_STATUS_APPROVE);
+			}
+			return setRequestStatus(request, REQUEST_STATUS_REVIEW);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonResponse.getInstance(e);
 		}
 	}
 
+	@PutMapping("/approve")
+	public JsonResponse approve(@RequestBody Request request) {
+		try {
+			Optional<Request> requests = requestRepo.findById(request.getId());
+			if (!requests.isPresent())
+				return JsonResponse.getInstance("No Request match found.");
+			return setRequestStatus(request, REQUEST_STATUS_APPROVE);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonResponse.getInstance(e);
+		}
+
+	}
+
 	@PutMapping("/reject")
 	public JsonResponse reject(@RequestBody Request request) {
 		try {
-//			if (id != request.getId()) {
-//				return JsonResponse.getInstance("Parameter id doesn't match request.");
-//			}
+			Optional<Request> requests = requestRepo.findById(request.getId());
+			if (!requests.isPresent())
+				return JsonResponse.getInstance("No Request match found.");
 			return setRequestStatus(request, REQUEST_STATUS_REJECTED);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -162,17 +168,12 @@ public class RequestController {
 
 	}
 
-	// Requirement #6 - submit request for review:  change status to approved (if <= 50) or review, set submitted date to current date
-	@PutMapping("/submit-review")
-	public JsonResponse submitForReview(@RequestBody Request request) {
+	// Requirement #6 - submit request for review: change status to approved (if <=
+	// 50) or review, set submitted date to current date
+	@GetMapping("/list-review/{id}")
+	public JsonResponse getReviews(@PathVariable Integer id) {
 		try {
-//			if (id != request.getId())
-//				return JsonResponse.getInstance("Parameter id does not match.");
-			request.setSubmittedDate(new Date(System.currentTimeMillis()));
-			if (request.getTotal() <= 50) {
-				return setRequestStatus(request, REQUEST_STATUS_APPROVE);
-			}
-			return setRequestStatus(request, REQUEST_STATUS_REVIEW);
+			return JsonResponse.getInstance(requestRepo.findRequestByStatusAndUserIdNot(REQUEST_STATUS_REVIEW,id));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonResponse.getInstance(e);

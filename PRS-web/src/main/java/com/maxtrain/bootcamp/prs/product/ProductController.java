@@ -23,7 +23,7 @@ public class ProductController {
 	@Autowired
 	private ProductRepository productRepo;
 
-	@GetMapping()
+	@GetMapping("/")
 	public JsonResponse getAll() {
 		Iterable<Product> product = productRepo.findAll();
 		return JsonResponse.getInstance(product);
@@ -31,13 +31,12 @@ public class ProductController {
 
 	@GetMapping("/{id}")
 	public JsonResponse get(@PathVariable Integer id) {
+		if (id == null)
+			return JsonResponse.getInstance("Parameter id cannot be null.");
 		try {
-			if (id == null)
-				return JsonResponse.getInstance("Parameter id cannot be null.");
 			Optional<Product> product = productRepo.findById(id);
-			if (!product.isPresent()) {
+			if (!product.isPresent())
 				return JsonResponse.getInstance("Product not found.");
-			}
 			return JsonResponse.getInstance(product.get());
 		} catch (Exception e) {
 			return JsonResponse.getInstance(e);
@@ -56,7 +55,7 @@ public class ProductController {
 		}
 	}
 
-	@PostMapping()
+	@PostMapping("/")
 	public JsonResponse insert(@RequestBody Product product) {
 		try {
 			return save(product);
@@ -69,6 +68,9 @@ public class ProductController {
 	@PutMapping("/")
 	public JsonResponse update(@RequestBody Product product) {
 		try {
+			Optional<Product> prod = productRepo.findById(product.getId());
+			if (!prod.isPresent())
+				return JsonResponse.getInstance("Product with that ID does not exist.");
 			return save(product);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -78,9 +80,9 @@ public class ProductController {
 
 	@DeleteMapping("/{id}")
 	public JsonResponse delete(@PathVariable Integer id) {
+		if (id == null)
+			return JsonResponse.getInstance("Parameter id cannot be null.");
 		try {
-			if (id == null)
-				return JsonResponse.getInstance("Parameter id cannot be null.");
 			Optional<Product> product = productRepo.findById(id);
 			if (!product.isPresent()) {
 				return JsonResponse.getInstance("Product not found.");

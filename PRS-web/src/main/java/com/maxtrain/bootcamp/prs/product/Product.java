@@ -13,7 +13,7 @@ import javax.persistence.UniqueConstraint;
 import com.maxtrain.bootcamp.prs.vendor.Vendor;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "UIDX_partNumber", columnNames = { "partNumber" }))
+@Table(uniqueConstraints = @UniqueConstraint(name = "UIDX_vendor_part", columnNames = { "partNumber" , "vendorId" }))
 public class Product {
 
 	@Id
@@ -34,7 +34,7 @@ public class Product {
 	private String photoPath;
 
 	public Product() {
-		super();
+	
 	}
 
 	public Product(int id, Vendor vendor, String partNumber, String name, double price, String unit, String photoPath) {

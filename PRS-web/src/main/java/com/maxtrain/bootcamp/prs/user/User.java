@@ -16,19 +16,6 @@ public class User {
 	private int id;
 	@Column(length = 20, nullable = false)
 	private String username;
-	public User(String username, String password, String firstName, String lastName, String phoneNumber, String email,
-			boolean isReviewer, boolean isAdmin) {
-		super();
-		this.username = username;
-		this.password = password;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.phoneNumber = phoneNumber;
-		this.email = email;
-		this.isReviewer = isReviewer;
-		this.isAdmin = isAdmin;
-	}
-
 	@Column(length = 10, nullable = false)
 	private String password;
 	@Column(length = 20, nullable = false)
@@ -41,13 +28,25 @@ public class User {
 	private String email;
 	private boolean isReviewer;
 	private boolean isAdmin;
+	
+	public User() {
+	}
+	
+	public User(String username, String password, String firstName, String lastName, String phoneNumber, String email,
+			boolean isReviewer, boolean isAdmin) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.phoneNumber = phoneNumber;
+		this.email = email;
+		this.isReviewer = isReviewer;
+		this.isAdmin = isAdmin;
+}
 
 	public int getId() {
 		return id;
-	}
-
-	public User() {
-
 	}
 
 	public void setId(int id) {

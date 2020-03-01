@@ -33,19 +33,19 @@ public class LineItemController {
 		if (!req.isPresent()) {
 			throw new Exception("Cannot find the Request with id." + requestId);
 		}
-		Request request = req.get();
-		Iterable<LineItem> lines = lineRepo.getLineitemByRequestId(request.getId());
+		Iterable<LineItem> lines = lineRepo.getLineitemByRequestId(requestId);
 		double total = 0;
 		for (LineItem line : lines) {
-			double subtotal = (line.getProduct().getPrice() * line.getQuantity());
-			total = subtotal;
+			total += (line.getProduct().getPrice() * line.getQuantity());
+
 		}
+		Request request = req.get();
 		request.setTotal(total);
 		request.setStatus(RequestController.REQUEST_STATUS_EDIT);
 		requestRepo.save(request);
 	}
 
-	@GetMapping("/request/{id}")
+	@GetMapping("/lines-for-pr/{id}")
 	public JsonResponse getByRequest(@PathVariable Integer id) {
 		try {
 			Iterable<LineItem> lines = lineRepo.getLineitemByRequestId(id);
@@ -56,7 +56,7 @@ public class LineItemController {
 		}
 	}
 
-	@GetMapping()
+	@GetMapping("/")
 	public JsonResponse getAll() {
 		try {
 			return JsonResponse.getInstance(lineRepo.findAll());
@@ -68,9 +68,9 @@ public class LineItemController {
 
 	@GetMapping("/{id}")
 	private JsonResponse get(@PathVariable Integer id) {
+		if (id == null)
+			return JsonResponse.getInstance("Paramerter id cannot be null.");
 		try {
-			if (id == null)
-				return JsonResponse.getInstance("Paramerter id cannot be null.");
 			Optional<LineItem> line = lineRepo.findById(id);
 			if (!line.isPresent())
 				return JsonResponse.getInstance("Lineitem not found.");
@@ -83,9 +83,10 @@ public class LineItemController {
 
 	private JsonResponse save(LineItem line) {
 		try {
-			LineItem line1 = lineRepo.saveAndFlush(line);
-			return JsonResponse.getInstance(line1);
+			LineItem lineItem = lineRepo.saveAndFlush(line);
+			return JsonResponse.getInstance(lineItem);
 		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
 			return JsonResponse.getInstance("Parameter lineitem cannot be null.");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -93,27 +94,29 @@ public class LineItemController {
 		}
 	}
 
-	@PostMapping()
+	@PostMapping("/")
 	private JsonResponse insert(@RequestBody LineItem line) {
 		try {
-			JsonResponse jr = save(line);
+			save(line);
 			recalcLines(line.getRequest().getId());
-			return jr;
+			return JsonResponse.getInstance(line);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonResponse.getInstance(e);
 		}
 	}
 
-	@PutMapping("/{id}")
-	public JsonResponse update(@RequestBody LineItem line, @PathVariable Integer id) {
+	@PutMapping("/")
+	public JsonResponse update(@RequestBody LineItem line) {
 		try {
-			if (id != line.getId()) {
+			Optional<LineItem> l = lineRepo.findById(line.getId());
+			if (!l.isPresent()) {
 				return JsonResponse.getInstance("Parameter id doesn't match.");
-			}	
+			}
+			save(line);
 			recalcLines(line.getRequest().getId());
-			return save(line);
-			
+			return JsonResponse.getInstance(line);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonResponse.getInstance(e);
@@ -123,20 +126,20 @@ public class LineItemController {
 
 	@DeleteMapping("/{id}")
 	public JsonResponse delete(@PathVariable Integer id) {
-		try {
 			if (id == null)
 				return JsonResponse.getInstance("Parameter id cannot be null.");
-			Optional<LineItem> line = lineRepo.findById(id);
-			if (line.isPresent()) {
+			try {
+			      Optional<LineItem> line = lineRepo.findById(id);
+			      if (!line.isPresent()) 
+			    	  return JsonResponse.getInstance("Line item doesn't exist.");
 				lineRepo.deleteById(id);
 				lineRepo.flush();
 				recalcLines(line.get().getRequest().getId());
 				return JsonResponse.getInstance(line.get());
-			}
-			return JsonResponse.getInstance("Line item does not exist.");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonResponse.getInstance(e);
 		}
 	}
+	
 }

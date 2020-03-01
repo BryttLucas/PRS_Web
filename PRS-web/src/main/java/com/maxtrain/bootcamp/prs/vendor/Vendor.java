@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "UIDX_code", columnNames = { "name" }))
+@Table(uniqueConstraints = @UniqueConstraint(name = "UIDX_code", columnNames = { "code" }))
 public class Vendor {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class Vendor {
 	@Column(length = 255, nullable = false)
 	private String city;
 	@Column(length = 2, nullable = false)
-	private String State;
+	private String state;
 	@Column(length = 5, nullable = false)
 	private String zip;
 	@Column(length = 12, nullable = false)
@@ -32,6 +32,20 @@ public class Vendor {
 	private String email;
 
 	public Vendor() {
+	}
+	
+	public Vendor(int id, String code, String name, String address, String city, String state, String zip,
+			String phoneNumber, String email) {
+		super();
+		this.id = id;
+		this.code = code;
+		this.name = name;
+		this.address = address;
+		this.city = city;
+		this.state = state;
+		this.zip = zip;
+		this.phoneNumber = phoneNumber;
+		this.email = email;
 	}
 
 	public int getId() {
@@ -75,11 +89,11 @@ public class Vendor {
 	}
 
 	public String getState() {
-		return State;
+		return state;
 	}
 
 	public void setState(String state) {
-		State = state;
+		this.state = state;
 	}
 
 	public String getZip() {
@@ -109,7 +123,7 @@ public class Vendor {
 	@Override
 	public String toString() {
 		return "Vendor [id=" + id + ", code=" + code + ", name=" + name + ", address=" + address + ", city=" + city
-				+ ", State=" + State + ", zip=" + zip + ", phoneNumber=" + phoneNumber + ", email=" + email + "]";
+				+ ", State=" + state + ", zip=" + zip + ", phoneNumber=" + phoneNumber + ", email=" + email + "]";
 	}
 
 }
